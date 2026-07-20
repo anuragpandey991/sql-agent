@@ -1,13 +1,5 @@
-"""
-test_llm_connection.py
-Run this once to confirm your GROQ_API_KEY is valid and the
-langchain-groq integration works, before building on top of it.
-
-Usage:
-    python test_llm_connection.py
-"""
-
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,4 +26,4 @@ print("Raw response:", response.content)
 if "CONNECTED" in response.content.upper():
     print("\n✅ Success -- your API key works and the model is reachable.")
 else:
-    print("\n⚠️  Got a response but not the expected content. Check output above.")
+    print("\n⚠️ Got a response but not the expected content. Check output above.")
