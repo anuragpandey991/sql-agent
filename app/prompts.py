@@ -1,16 +1,3 @@
-"""
-prompts.py
-All prompt templates used by the agent. Kept in one file so they're easy
-to audit, tweak, and reference in the README's "Prompts Used" section.
-"""
-
-# ============================================================
-# 1. INTENT CLASSIFICATION PROMPT
-# ============================================================
-# Runs first, before any SQL is generated. Decides whether the user's
-# message is answerable from this database, unrelated small talk, or
-# an attempt at a write/destructive operation.
-
 INTENT_CLASSIFICATION_PROMPT = """You are a strict intent classifier for a database assistant.
 The database contains ONLY e-commerce data: customers, products, orders, and order items.
 
@@ -39,13 +26,6 @@ Respond with ONLY a JSON object in this exact format, nothing else:
 {{"intent": "in_scope" | "out_of_scope" | "write_operation", "reason": "<one short sentence>"}}
 """
 
-
-# ============================================================
-# 2. SQL GENERATION PROMPT
-# ============================================================
-# The core NL -> SQL prompt. Schema is injected dynamically from db.py
-# so it can never go stale. Few-shot examples teach the model the exact
-# column-naming conventions of THIS schema (e.g. shipping_country vs country).
 
 SQL_GENERATION_PROMPT = """You are a SQL expert generating SQLite queries for an e-commerce database.
 
@@ -108,12 +88,6 @@ Respond with ONLY the SQL query (or a NO_QUERY line), no explanation, no markdow
 """
 
 
-# ============================================================
-# 3. SQL REPAIR PROMPT
-# ============================================================
-# Used when validation fails. Gives the LLM the exact error so it can
-# self-correct rather than blindly regenerating from scratch.
-
 SQL_REPAIR_PROMPT = """The following SQL query failed validation against the schema below.
 
 DATABASE SCHEMA:
@@ -136,11 +110,6 @@ NO_QUERY: <short explanation>
 """
 
 
-# ============================================================
-# 4. ANSWER FORMATTING PROMPT
-# ============================================================
-# Converts raw query results into a natural-language answer for the user.
-
 ANSWER_FORMATTING_PROMPT = """You are summarizing a database query result for a user in plain, natural language.
 
 USER'S QUESTION:
@@ -160,15 +129,13 @@ empty, say so clearly rather than making something up. Keep it concise
 
 
 def format_chat_history(chat_history: list[dict]) -> str:
-    """Renders chat_history (list of ChatTurn dicts) into a plain-text
-    block for prompt injection. Kept separate so both the classification
-    and generation prompts format history identically.
-    """
     if not chat_history:
         return "(no prior turns in this conversation)"
 
     lines = []
+
     for turn in chat_history:
         lines.append(f"User: {turn['user_message']}")
         lines.append(f"Assistant: {turn['assistant_message']}")
+
     return "\n".join(lines)
