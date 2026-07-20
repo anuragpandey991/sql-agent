@@ -1,21 +1,15 @@
-"""
-streamlit_app.py
-Minimal chat UI for the SQL Query AI Agent. Talks to the FastAPI backend
-(main.py) over HTTP -- keeps UI and agent logic fully decoupled, so the
-backend can be tested/deployed independently (e.g. via the API docs)
-and this is purely a thin presentation layer on top of it.
-
-Run locally (with the FastAPI server already running separately):
-    streamlit run streamlit_app.py
-"""
-
 import os
+
 import requests
 import streamlit as st
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-st.set_page_config(page_title="SQL Query AI Agent", page_icon="🗄️", layout="centered")
+st.set_page_config(
+    page_title="SQL Query AI Agent",
+    page_icon="🗄️",
+    layout="centered",
+)
 
 st.title("🗄️ SQL Query AI Agent")
 st.caption(
@@ -40,15 +34,15 @@ with st.expander("ℹ️ What can I ask?"):
         """
     )
 
-# --- Session state setup ---
 if "messages" not in st.session_state:
-    st.session_state.messages = []  # list of {role, content, sql?, result?}
+    st.session_state.messages = []
+
 if "session_id" not in st.session_state:
     st.session_state.session_id = None
 
-# --- Sidebar controls ---
 with st.sidebar:
     st.subheader("Session")
+
     if st.session_state.session_id:
         st.code(st.session_state.session_id, language=None)
     else:
@@ -57,9 +51,13 @@ with st.sidebar:
     if st.button("🔄 Reset conversation"):
         if st.session_state.session_id:
             try:
-                requests.post(f"{API_URL}/reset/{st.session_state.session_id}", timeout=5)
+                requests.post(
+                    f"{API_URL}/reset/{st.session_state.session_id}",
+                    timeout=5,
+                )
             except requests.RequestException:
                 pass
+
         st.session_state.messages = []
         st.session_state.session_id = None
         st.rerun()
@@ -67,22 +65,27 @@ with st.sidebar:
     st.divider()
     st.caption(f"Backend: `{API_URL}`")
 
-# --- Render chat history ---
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
+
         if msg.get("sql"):
             with st.expander("View generated SQL"):
                 st.code(msg["sql"], language="sql")
+
         if msg.get("result") is not None:
-            with st.expander(f"View raw result ({len(msg['result'])} rows)"):
+            with st.expander(
+                f"View raw result ({len(msg['result'])} rows)"
+            ):
                 st.dataframe(msg["result"])
 
-# --- Chat input ---
 user_input = st.chat_input("Ask a question about the database...")
 
 if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.session_state.messages.append(
+        {"role": "user", "content": user_input}
+    )
+
     with st.chat_message("user"):
         st.write(user_input)
 
@@ -106,28 +109,47 @@ if user_input:
                 result = data.get("result")
 
                 st.write(answer)
+
                 if sql:
                     with st.expander("View generated SQL"):
                         st.code(sql, language="sql")
+
                 if result is not None:
-                    with st.expander(f"View raw result ({len(result)} rows)"):
+                    with st.expander(
+                        f"View raw result ({len(result)} rows)"
+                    ):
                         st.dataframe(result)
 
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": answer,
-                    "sql": sql,
-                    "result": result,
-                })
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer,
+                        "sql": sql,
+                        "result": result,
+                    }
+                )
 
             except requests.exceptions.ConnectionError:
                 error_msg = (
                     f"Could not reach the backend at `{API_URL}`. "
-                    "Make sure the FastAPI server is running (`uvicorn main:app --reload`)."
+                    "Make sure the FastAPI server is running "
+                    "(`uvicorn main:app --reload`)."
                 )
+
                 st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": error_msg,
+                    }
+                )
+
             except requests.exceptions.RequestException as e:
                 error_msg = f"Request failed: {e}"
                 st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": error_msg,
+                    }
+                )
