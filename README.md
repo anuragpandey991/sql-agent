@@ -10,7 +10,7 @@ Built for the Forward Deployed Engineer technical assignment.
 
 | | |
 |---|---|
-| **Live App** | https://your-app.streamlit.app |
+| **Live App** | https://sql-agent-wha4mwxb8i7rn6nb8posga.streamlit.app/ |
 | **API Docs (Swagger)** | https://sql-agent-1-0vkn.onrender.com/docs |
 | **GitHub Repo** | https://github.com/anuragpandey991/sql-agent |
 | **Demo Video** | https://drive.google.com/file/d/1U7VokfQ6WGT-YOAryYXUPaIqlz_FrS0v/view?usp=sharing |
