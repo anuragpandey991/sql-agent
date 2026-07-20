@@ -1,12 +1,3 @@
-"""
-seed.py
-Creates ecommerce.db from schema.sql and populates it with realistic fake data
-using Faker. Run this once to set up your local/demo database.
-
-Usage:
-    python seed.py
-"""
-
 import sqlite3
 import random
 from datetime import timedelta, datetime, date
@@ -15,7 +6,6 @@ from faker import Faker
 DB_PATH = "ecommerce.db"
 SCHEMA_PATH = "schema.sql"
 
-# Python 3.12 deprecated sqlite3's default date adapter -- register explicit ones
 sqlite3.register_adapter(date, lambda d: d.isoformat())
 
 fake = Faker()
@@ -27,14 +17,32 @@ N_PRODUCTS = 40
 N_ORDERS = 250
 MAX_ITEMS_PER_ORDER = 4
 
-COUNTRIES = ["India", "United States", "Germany", "United Kingdom",
-             "Canada", "Australia", "France", "Brazil", "Japan", "Singapore"]
+COUNTRIES = [
+    "India",
+    "United States",
+    "Germany",
+    "United Kingdom",
+    "Canada",
+    "Australia",
+    "France",
+    "Brazil",
+    "Japan",
+    "Singapore",
+]
 
-CATEGORIES = ["Electronics", "Apparel", "Home & Kitchen", "Books",
-              "Sports & Outdoors", "Beauty", "Toys", "Groceries"]
+CATEGORIES = [
+    "Electronics",
+    "Apparel",
+    "Home & Kitchen",
+    "Books",
+    "Sports & Outdoors",
+    "Beauty",
+    "Toys",
+    "Groceries",
+]
 
 LOYALTY_TIERS = ["Bronze", "Silver", "Gold"]
-LOYALTY_WEIGHTS = [0.5, 0.35, 0.15]  # most customers are Bronze, few are Gold
+LOYALTY_WEIGHTS = [0.5, 0.35, 0.15]
 
 ORDER_STATUSES = ["placed", "shipped", "delivered", "cancelled"]
 ORDER_STATUS_WEIGHTS = [0.15, 0.20, 0.55, 0.10]
@@ -69,7 +77,6 @@ def seed_products(conn):
         category = random.choice(CATEGORIES)
         unit_price = round(random.uniform(5, 500), 2)
         stock_qty = random.randint(0, 500)
-        # ~12% of catalog is discontinued -- deliberate edge case for validation demos
         is_discontinued = 1 if random.random() < 0.12 else 0
         rows.append((product_name, category, unit_price, stock_qty, is_discontinued))
 
@@ -92,23 +99,21 @@ def seed_orders_and_items(conn):
     for _ in range(N_ORDERS):
         customer_id, home_country, signup_date = random.choice(customers)
 
-        # order_date must be after signup_date
         if isinstance(signup_date, str):
             start = datetime.strptime(signup_date, "%Y-%m-%d").date()
         else:
             start = signup_date
-        # guard against edge case where signup_date is today/future
+
         if start >= date.today():
             start = date.today() - timedelta(days=1)
-        order_date = fake.date_between(start_date=start, end_date="today")
 
+        order_date = fake.date_between(start_date=start, end_date="today")
         status = random.choices(ORDER_STATUSES, weights=ORDER_STATUS_WEIGHTS)[0]
 
-        # ~20% of orders ship to a different country than the customer's home
-        # (deliberate trap: tests whether the agent distinguishes customers.country
-        #  vs orders.shipping_country)
         if random.random() < 0.20:
-            shipping_country = random.choice([c for c in COUNTRIES if c != home_country])
+            shipping_country = random.choice(
+                [c for c in COUNTRIES if c != home_country]
+            )
         else:
             shipping_country = home_country
 
@@ -128,14 +133,14 @@ def seed_orders_and_items(conn):
     for order_id in order_ids:
         n_items = random.randint(1, MAX_ITEMS_PER_ORDER)
         chosen_products = random.sample(products, k=min(n_items, len(products)))
+
         for product_id, current_price in chosen_products:
             quantity = random.randint(1, 5)
-            # price_at_purchase can differ slightly from current catalog price
-            # (simulates historical price changes -- intentional for price_at_purchase
-            #  vs unit_price distinction)
             drift = random.uniform(-0.15, 0.10)
             price_at_purchase = round(max(1.0, current_price * (1 + drift)), 2)
-            item_rows.append((order_id, product_id, quantity, price_at_purchase))
+            item_rows.append(
+                (order_id, product_id, quantity, price_at_purchase)
+            )
 
     cur.executemany(
         """INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)
@@ -153,7 +158,6 @@ def main():
     conn.commit()
     seed_orders_and_items(conn)
 
-    # quick sanity check
     cur = conn.cursor()
     for table in ["customers", "products", "orders", "order_items"]:
         count = cur.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
