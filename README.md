@@ -15,7 +15,7 @@ Built for the Forward Deployed Engineer technical assignment.
 | **GitHub Repo** | https://github.com/anuragpandey991/sql-agent |
 | **Demo Video** | https://drive.google.com/file/d/1U7VokfQ6WGT-YOAryYXUPaIqlz_FrS0v/view?usp=sharing |
 | **Presentation** | https://docs.google.com/presentation/d/1UDgTfVhdcp6dWFWUtD1_SlJAxd4hciaKthSWrgNOfFc/edit?usp=sharing |
-| **Mermaid Diagram** | [*(add link once uploaded)*](https://mermaid.ai/app/projects/11959721-909a-464f-813c-44319e890de0/diagrams/177177dc-fb0e-4f67-9032-edee2dd24328/version/v0.1/edit) |
+| **Mermaid Diagram** | https://mermaid.ai/app/projects/11959721-909a-464f-813c-44319e890de0/diagrams/177177dc-fb0e-4f67-9032-edee2dd24328/version/v0.1/edit |
 
 
 
